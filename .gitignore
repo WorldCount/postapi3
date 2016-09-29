@@ -1,0 +1,7 @@
+*.pyc
+test*.py*
+test.txt
+.idea/
+tests/
+*~
+FILES/
