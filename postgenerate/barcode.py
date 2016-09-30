@@ -129,11 +129,18 @@ def create_barcode(ops_num, month_num, rpo_num):
 # Генерирует диапазон ШПИ
 def create_barcode_list(ops_num, month_num, in_num, out_num):
     result = []
+
     try:
+        ops = str(ops_num)
+        if len(ops) < 6:
+            return False
+
         for i in range(int(in_num), int(out_num) + 1):
-            barcode = create_barcode(ops_num, month_num, i)
-            result.append(barcode)
+            barcode = create_barcode(ops, month_num, i)
+            if barcode:
+                result.append(barcode)
         return result
+
     except ValueError:
         return False
 
