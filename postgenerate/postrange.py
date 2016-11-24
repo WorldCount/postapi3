@@ -79,15 +79,29 @@ def get_month_num(date):
 
 # Получает дату указанного месяца
 def get_month_date(month_num):
-    if month_num < 0:
-        month_num *= -1
 
     start_year = 2000
     start_month = 0
-    start_month += month_num % 12 or 1
-    start_year += month_num // 12
+    rem_year = 0
+
+    if month_num == 0:
+        return datetime(start_year, 1, 1)
+
+    if month_num < 0:
+        month_num *= -1
+
+    month_range = month_num % 12
+    if month_range == 0:
+        rem_year = 1
+
+    start_month += month_range or 12
+    start_year += month_num // 12 - rem_year
 
     return datetime(start_year, start_month, 1)
+
+
+
+
 
 
 if __name__ == '__main__':
