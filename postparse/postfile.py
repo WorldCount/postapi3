@@ -9,6 +9,46 @@ __author__ = 'WorldCount'
 """
 
 
+# Заголовок файла
+class PostHeader:
+
+    def __init__(self, header_str=None):
+        # Оригинальный заголовок
+        self._header = header_str
+        # Список с заголовками
+        self._index = []
+        # Список с данными
+        self._data = []
+
+        if self._header:
+            self.parse_header(self._header)
+
+    # Метод: парсит и устанавливает заголовок
+    def parse_header(self, header):
+        if type(header) == str:
+            self._index = header.split('|')
+            self._data = {key.upper(): '' for key in self._index}
+            return True
+        elif type(header) == list:
+            self._index = header
+            self._data = {key.upper(): '' for key in header}
+            return True
+        else:
+            return False
+
+    # Метод: возвращает список заголовков
+    def get_header_index(self):
+        return self._index
+
+    # Метод: возвращает данные заголовков
+    def get_header_data(self):
+        return self._data
+
+    # Метод: заголовок в строку
+    def format(self):
+        return '|'.join(self._index)
+
+
 # Комментарий в строке почтового файла
 class PostComment:
 
@@ -114,22 +154,16 @@ class PostComment:
 class PostString:
 
     # Конструктор
-    def __init__(self, raw_string=None, num_line=0):
+    def __init__(self, header, raw_string=None, num_line=0):
         self._ind = -1
+        # Комментарий в строке
         self._comment = PostComment()
-        self._data = {'OperType': '', 'OperDate': '', 'Barcode': '', 'IndexTo': '', 'MailDirect': '',
-                      'TransType': '', 'MailType': '', 'MailCtg': '', 'MailRank': '', 'SendCtg': '',
-                      'PostMark': '', 'Mass': '', 'Payment': '', 'Value': '', 'PayType': '', 'MassRate': '',
-                      'InsrRate': '', 'AirRate': '', 'AdValTax': '', 'SaleTax': '', 'Rate': '', 'OperAttr': '',
-                      'IndexOper': '', 'IndexNext': '', 'Comment': self._comment, 'SNDRAddressData': '',
-                      'RCPNAddressData': '', 'NotifyAddressData': '', 'NotificationRCPN': '',
-                      'EmployeeData': '', 'ByProxy': ''}
-
-        self._index = ['OperType', 'OperDate', 'Barcode', 'IndexTo', 'MailDirect', 'TransType', 'MailType',
-                       'MailCtg', 'MailRank', 'SendCtg', 'PostMark', 'Mass', 'Payment', 'Value', 'PayType',
-                       'MassRate', 'InsrRate', 'AirRate', 'AdValTax', 'SaleTax', 'Rate', 'OperAttr', 'IndexOper',
-                       'IndexNext', 'Comment', 'SNDRAddressData', 'RCPNAddressData', 'NotifyAddressData',
-                       'NotificationRCPN', 'EmployeeData', 'ByProxy']
+        # Данные заголовков
+        self._data = header.get_header_data()
+        self._data['COMMENT'] = self._comment
+        # Список заголовков
+        self._index = header.get_header_index()
+        # Номер строки
         self._num_line = num_line
 
         if raw_string:
@@ -142,11 +176,11 @@ class PostString:
     # Системный метод: Получить значение элемента
     def __getitem__(self, item):
         key = item
-        if type(item) == int and (item < len(self) or item >= 0):
-            key = self._index[item]
+        if type(item) == int and len(self) > item >= 0:
+                key = self._index[item]
 
-        if key in self._data.keys():
-            return self._data[key]
+        if type(key) == str and key.upper() in self._data.keys():
+            return self._data[key.upper()]
         return False
 
     # Системный метод: Установить значение элемента
@@ -155,8 +189,8 @@ class PostString:
         if type(item) == int and (item < len(self) or item >= 0):
             key = self._index[item]
 
-        if key in self._data.keys():
-            self._data[key] = value
+        if type(key) == str and key.upper() in self._data.keys():
+            self._data[key.upper()] = value
 
     # Системный метод: Удалить значение элемента
     def __delitem__(self, item):
@@ -164,8 +198,8 @@ class PostString:
         if type(item) == int and (item < len(self) or item >= 0):
             key = self._index[item]
 
-        if key in self._data.keys():
-            self._data[key] = ''
+        if type(key) == str and key.upper() in self._data.keys():
+            self._data[key.upper()] = ''
 
     # Системный метод: Данные в строку
     def __str__(self):
@@ -197,7 +231,7 @@ class PostString:
     def values(self):
         return self._data.values()
 
-    # Метод:
+    # Метод: парсит строку
     def parse(self, text_string, line=0):
         self._num_line = line
         data = text_string.split('|')
@@ -206,7 +240,7 @@ class PostString:
             return False
 
         for num, ind in enumerate(self._index):
-            if ind == 'Comment':
+            if ind == 'COMMENT':
                 self._data[ind].parse(data[num])
                 continue
             self._data[ind] = data[num]
@@ -215,7 +249,7 @@ class PostString:
     def format(self):
         for_str = []
         for ind in self:
-            if ind == 'Comment':
+            if ind == 'COMMENT':
                 for_str.append(self._data[ind].format())
                 continue
             for_str.append(self._data[ind])
