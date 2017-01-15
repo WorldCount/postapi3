@@ -240,6 +240,7 @@ class PostString:
                 self._data[ind].parse(data[num])
                 continue
             self._data[ind] = data[num]
+        return True
 
     # Метод: Форматирует данные в формат строки
     def format(self):
