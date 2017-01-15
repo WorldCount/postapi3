@@ -48,6 +48,10 @@ class PostHeader:
     def format(self):
         return '|'.join(self._index)
 
+    # Метод: возвращает заголовок списком
+    def list(self):
+        return self._index
+
 
 # Комментарий в строке почтового файла
 class PostComment:
@@ -186,7 +190,7 @@ class PostString:
     # Системный метод: Установить значение элемента
     def __setitem__(self, item, value):
         key = item
-        if type(item) == int and (item < len(self) or item >= 0):
+        if type(item) == int and len(self) > item >= 0:
             key = self._index[item]
 
         if type(key) == str and key.upper() in self._data.keys():
@@ -195,7 +199,7 @@ class PostString:
     # Системный метод: Удалить значение элемента
     def __delitem__(self, item):
         key = item
-        if type(item) == int and (item < len(self) or item >= 0):
+        if type(item) == int and len(self) > item >= 0:
             key = self._index[item]
 
         if type(key) == str and key.upper() in self._data.keys():
