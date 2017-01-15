@@ -40,6 +40,10 @@ class PostHeader:
     def get_header_data(self):
         return self._data
 
+    # Метод: возвращает количество данных
+    def get_length(self):
+        return len(self._index)
+
     # Метод: заголовок в строку
     def format(self):
         return '|'.join(self._index)
@@ -155,10 +159,10 @@ class PostString:
         # Комментарий в строке
         self._comment = PostComment()
         # Данные заголовков
-        self._data = header.get_header_data()
+        self._data = header.get_header_data().copy()
         self._data['COMMENT'] = self._comment
         # Список заголовков
-        self._index = header.get_header_index()
+        self._index = header.get_header_index()[:]
         # Номер строки
         self._num_line = num_line
 
@@ -199,9 +203,9 @@ class PostString:
 
     # Системный метод: Данные в строку
     def __str__(self):
-        return '[Стр: %d] { ШПИ: %s, ОПС: %s, Дата: %s, Куда: %s, Вес: %s, Вид: %s, Категория: %s }' \
+        return '[Стр: %d] { ШПИ: %s, ОПС: %s, Дата: %s, Куда: %s, Вес: %s, Вид: %s, Категория: %s, Операция: %s }' \
                % (self._num_line, self['Barcode'], self['IndexOper'], self['OperDate'], self['IndexTo'],
-                  self['Mass'], self['MailType'], self['MailCtg'])
+                  self['Mass'], self['MailType'], self['MailCtg'], self['OperType'])
 
     # Системный метод: Вывод на консоль
     def __repr__(self):
@@ -244,13 +248,17 @@ class PostString:
 
     # Метод: Форматирует данные в формат строки
     def format(self):
+        return '|'.join(self.list())
+
+    # Метод: Возвращает данные списком
+    def list(self):
         for_str = []
         for ind in self:
             if ind == 'COMMENT':
                 for_str.append(self._data[ind].format())
                 continue
             for_str.append(self._data[ind])
-        return '|'.join(for_str)
+        return for_str
 
     @property
     def num(self):
