@@ -22,7 +22,7 @@ class PostHeader:
     # Метод: парсит и устанавливает заголовок
     def parse_header(self, header):
         if type(header) == str:
-            self._index = header.split('|')
+            self._index = [key.upper() for key in header.split('|')]
             self._data = {key.upper(): '' for key in self._index}
             return True
         elif type(header) == list:
@@ -185,6 +185,8 @@ class PostString:
 
         if type(key) == str and key.upper() in self._data.keys():
             return self._data[key.upper()]
+        if isinstance(item, slice):
+            return self._data
         return False
 
     # Системный метод: Установить значение элемента

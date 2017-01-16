@@ -99,7 +99,7 @@ class PostFile:
         file_hash.update(md_sum)
         return file_hash.hexdigest()
 
-    # Метод: открывает файл
+    # Метод: открывает и парсит файл
     def _parse_file(self):
         with open(self._link, 'rb') as rpofile:
             return self._parse_list(rpofile)
@@ -131,6 +131,7 @@ class PostFile:
                     raise errors.ParseStringError(self._link, num + 1)
 
                 if len(post_sting['barcode']) < 13:
+                    print(post_sting['barcode'])
                     file_descriptor.close()
                     raise errors.RpoNumNotFound(self._link, num + 1)
                 else:
@@ -174,7 +175,7 @@ class PostFile:
         else:
             return list_version[0]
 
-    # Метод: Сохраняет файл
+    # Метод: сохраняет файл
     def save(self, file_path, pack=True):
         dir_name, file_name = os.path.split(file_path)
         temp_file = os.path.join(TEMP, file_name)
@@ -195,39 +196,39 @@ class PostFile:
             shutil.copy(temp_file, file_path)
         os.remove(temp_file)
 
-    # Системный метод: Размер данных
+    # Системный метод: размер данных
     def __len__(self):
         return len(self._list_mail)
 
-    # Системный метод: Получить значение элемента
+    # Системный метод: получить значение элемента
     def __getitem__(self, item):
         if type(item) == int and len(self) > item >= 0:
             return self._list_mail[item]
         return False
 
-    # Системный метод: Установить значение элемента
+    # Системный метод: установить значение элемента
     def __setitem__(self, item, value):
         if type(item) == int and len(self) > item >= 0 and type(value) is PostString:
             self._list_mail[item] = value
 
-    # Системный метод: Удалить значение элемента
+    # Системный метод: удалить значение элемента
     def __delitem__(self, item):
         if type(item) == int and len(self) > item >= 0:
-            del self._list_mail[item]
+            del self._list_mail[:][item]
 
-    # Системный метод: Данные в строку
+    # Системный метод: данные в строку
     def __str__(self):
         return 'Файл: %s, версия: %s [%s строк]' % (self.name, self.version, str(self.mail_sum))
 
-    # Системный метод: Вывод на консоль
+    # Системный метод: вывод на консоль
     def __repr__(self):
         return str(self)
 
-    # Системный метод: Итератор
+    # Системный метод: итератор
     def __iter__(self):
         return self
 
-    # Системный метод: Возвращает следующий элемент
+    # Системный метод: возвращает следующий элемент
     def __next__(self):
         if self._ind == len(self) - 1:
             self._ind = -1
@@ -235,108 +236,113 @@ class PostFile:
         self._ind += 1
         return self._list_mail[self._ind]
 
-    # Свойство: Возвращает имя файла
+    # Свойство: возвращает имя файла
     @property
     def name(self):
         return self._name
 
-    # Свойство: Возвращает полное имя файла
+    # Свойство: возвращает полное имя файла
     @property
     def name_raw(self):
         return self._name_file
 
-    # Свойство: Возвращает папку файла
+    # Свойство: возвращает папку файла
     @property
     def dir(self):
         return self._dir_file
 
-    # Свойство: Устанавливает имя файла
+    # Свойство: устанавливает имя файла
     @name.setter
     def name(self, value):
         if value:
             self._name = value
 
-    # Свойство: Возвращает значение дубликата
+    # Свойство: возвращает значение дубликата
     @property
     def double(self):
         return self._double
 
-    # Свойство: Устанавливает значение дубликата
+    # Свойство: устанавливает значение дубликата
     @double.setter
     def double(self, value):
         if value and type(value) is bool:
             self._double = value
 
-    # Свойство: Возвращает значение упаковки
+    # Свойство: возвращает значение упаковки
     @property
     def pack(self):
         return self._pack
 
-    # Свойство: Устанавливает значение упаковки
+    # Свойство: устанавливает значение упаковки
     @pack.setter
     def pack(self, value):
         if value and type(value) is bool:
             self._pack = value
 
-    # Свойство: Возвращает значение предупреждения
+    # Свойство: возвращает значение предупреждения
     @property
     def warning(self):
         return self._warning
 
-    # Свойство: Устанавливает значение предупреждения
+    # Свойство: устанавливает значение предупреждения
     @warning.setter
     def warning(self, value):
         if value and type(value) is bool:
             self._warning = value
 
-    # Свойство: Возвращает хеш файла
+    # Свойство: возвращает хеш файла
     @property
     def hash(self):
         return self._hash
 
-    # Свойство: Возвращает отправления в файле
+    # Свойство: возвращает отправления в файле
     @property
     def mail_list(self):
         return self._list_mail
 
-    # Свойство: Устанавливает отправления файла
+    # Свойство: устанавливает отправления файла
     @mail_list.setter
     def mail_list(self, mail_list):
         if type(mail_list) is list:
             self._list_mail = mail_list
             self._sum_string = len(mail_list)
 
-    # Свойство: Возвращает количество отправлений
+    # Свойство: возвращает количество отправлений
     @property
     def mail_sum(self):
         return self._sum_string
 
-    # Свойство: Возвращает версию файла
+    # Свойство: возвращает версию файла
     @property
     def version(self):
         return self._version
 
-    # Свойство: Возвращает заголовок файла списком
+    # Свойство: возвращает заголовок файла списком
     @property
     def header_list(self):
         return self._header.list()
 
-    # Свойство: Возвращает заголовок файла строкой
+    # Свойство: возвращает заголовок файла строкой
     @property
     def header_string(self):
         return self._header.format()
 
-    # Свойство: Возвращает номер базового ОПС
+    # Свойство: возвращает номер базового ОПС
     @property
     def base_ops_num(self):
         return self._base_ops_num
 
-    # Свойство: Возвращает дату создания файла
+    # Свойство: возвращает дату создания файла
     @property
     def create_date(self):
         return self._date_file
 
-    # Свойство: Возвращает дату создания файла строкой
+    # Свойство: возвращает дату создания файла строкой
     @property
     def create_date_format(self):
         return self._date_file.strftime("%d.%m.%Y %H:%M:%S")
+
+    # Свойство: возвращает ссылку на файл
+    @property
+    def link(self):
+        return self._link
