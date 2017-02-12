@@ -10,6 +10,7 @@ from zipfile import ZipFile, ZIP_DEFLATED
 from . import errors
 from . import PostHeader, PostString
 from ..postgenerate import numfile
+from ..postdata import opsinfo
 
 
 __author__ = 'WorldCount'
@@ -24,6 +25,11 @@ __author__ = 'WorldCount'
 _ROOT = os.path.dirname(__file__)
 # Директория для временных файлов
 TEMP = os.path.join(_ROOT, 'temp')
+# Объект с данными по ОПС
+_INFO = opsinfo.OpsInfo()
+if not _INFO.load():
+    _INFO.load_update()
+    _INFO.save()
 
 if not os.path.exists(TEMP):
     os.mkdir(TEMP)
@@ -69,7 +75,7 @@ class PostFile:
         # Количество строк в файле
         self._sum_string = len(self._list_mail)
         # Номер отделения
-        self._ops_number = ''
+        self._ops_number = _INFO.ops_head_dict.get(self._list_mail[0]['INDEXOPER'], self._list_mail[0]['INDEXOPER'])
         # Хеш файла
         self._hash = self._get_hash()
         # Дата создания файла
@@ -218,7 +224,7 @@ class PostFile:
 
     # Системный метод: данные в строку
     def __str__(self):
-        return 'Файл: %s, версия: %s [%s строк]' % (self.name, self.version, str(self.mail_sum))
+        return 'Файл: %s, версия: %s [строк: %s]' % (self.name, self.version, str(self.mail_sum))
 
     # Системный метод: вывод на консоль
     def __repr__(self):
@@ -346,3 +352,8 @@ class PostFile:
     @property
     def link(self):
         return self._link
+
+    # Свойство: возвращает номер ОПС
+    @property
+    def ops_num(self):
+        return self._ops_number
