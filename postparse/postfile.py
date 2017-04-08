@@ -137,7 +137,6 @@ class PostFile:
                     raise errors.ParseStringError(self._link, num + 1)
 
                 if len(post_sting['barcode']) < 13:
-                    print(post_sting['barcode'])
                     file_descriptor.close()
                     raise errors.RpoNumNotFound(self._link, num + 1)
                 else:
